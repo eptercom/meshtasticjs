@@ -2,6 +2,7 @@ import {
   BleConnection,
   HttpConnection,
   SerialConnection,
+  BleCapacitorConnection
 } from "./adapters/index.js";
 import type * as Types from "./types.js";
 
@@ -25,6 +26,15 @@ export class Client {
     const bleConnection = new BleConnection(configId);
     this.deviceInterfaces.push(bleConnection);
     return bleConnection;
+  }
+
+  /**
+   * Creates a new Bluetooth Low Enery connection interface via the Capacitor Bluetooth plugin
+   */
+  public createBleCapacitorConnection(configId?: number): BleCapacitorConnection {
+    const bleCapConnection = new BleCapacitorConnection(configId);
+    this.deviceInterfaces.push(bleCapConnection);
+    return bleCapConnection;
   }
 
   /**

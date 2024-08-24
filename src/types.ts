@@ -2,6 +2,7 @@ import type {
   BleConnection,
   HttpConnection,
   SerialConnection,
+  BleCapacitorConnection
 } from "./adapters/index.js";
 import type * as Protobuf from "./protobufs.js";
 
@@ -79,6 +80,7 @@ export enum EmitterScope {
   NodeSerialConnection = 3,
   BleConnection = 4,
   HttpConnection = 5,
+  BleCapacitorConnection = 6,
 }
 
 export enum Emitter {
@@ -136,9 +138,9 @@ export enum ChannelNumber {
   Admin = 7,
 }
 
-export type ConnectionType = BleConnection | HttpConnection | SerialConnection;
+export type ConnectionType = BleConnection | HttpConnection | SerialConnection | BleCapacitorConnection;
 
-export type ConnectionTypeName = "ble" | "http" | "serial";
+export type ConnectionTypeName = "ble" | "http" | "serial" | "cap";
 
 export type Destination = number | "self" | "broadcast";
 
