@@ -24,7 +24,9 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "bugs": {
     "url": "https://github.com/meshtastic/js/issues"
   },
@@ -33,6 +35,7 @@
     "url": "git+https://github.com/meshtastic/js.git"
   },
   "dependencies": {
+    "@capacitor-community/bluetooth-le": "^6.0.1",
     "crc": "^4.3.2",
     "ste-simple-events": "^3.0.11",
     "tslog": "^4.9.2"
