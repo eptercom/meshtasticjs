@@ -276,6 +276,29 @@ export abstract class MeshDevice {
     );
   }
 
+  // Write cannedMessages to device
+  public async setCannedMessages(
+    cannedMessages: Protobuf.CannedMessages.CannedMessageModuleConfig,
+  ): Promise<number> {
+    this.log.debug(
+      Types.Emitter[Types.Emitter.SetCannedMessages],
+      "⚙️ Setting CannedMessages",
+    );
+
+    const cannedMessagesMessage = new Protobuf.Admin.AdminMessage({
+      payloadVariant: {
+        case: "setCannedMessageModuleMessages",
+        value: cannedMessages.messages,
+      },
+    });
+
+    return await this.sendPacket(
+      cannedMessagesMessage.toBinary(),
+      Protobuf.Portnums.PortNum.ADMIN_APP,
+      "self",
+    );
+  }
+
   /**
    * Sets devices owner data
    */
@@ -622,16 +645,37 @@ export abstract class MeshDevice {
     );
   }
 
-  /** Factory resets the current node */
-  public async factoryReset(): Promise<number> {
+  /** Factory resets the current device */
+  public async factoryResetDevice(): Promise<number> {
     this.log.debug(
       Types.Emitter[Types.Emitter.FactoryReset],
-      "♻️ Factory resetting node",
+      "♻️ Factory resetting device",
     );
 
     const factoryReset = new Protobuf.Admin.AdminMessage({
       payloadVariant: {
-        case: "factoryReset",
+        case: "factoryResetDevice",
+        value: 1,
+      },
+    });
+
+    return await this.sendPacket(
+      factoryReset.toBinary(),
+      Protobuf.Portnums.PortNum.ADMIN_APP,
+      "self",
+    );
+  }
+
+  /** Factory resets the current config */
+  public async factoryResetConfig(): Promise<number> {
+    this.log.debug(
+      Types.Emitter[Types.Emitter.FactoryReset],
+      "♻️ Factory resetting config",
+    );
+
+    const factoryReset = new Protobuf.Admin.AdminMessage({
+      payloadVariant: {
+        case: "factoryResetConfig",
         value: 1,
       },
     });
