@@ -22,7 +22,7 @@ export class BleCapacitorConnection extends MeshDevice {
   /** BT Service */
   private service: BleService | undefined;
 
-  private timerUpdateFromRadio: NodeJS.Timeout | null = null;
+  private timerUpdateFromRadio: any = null;
 
   constructor(configId?: number) {
     super(configId);
@@ -114,7 +114,9 @@ export class BleCapacitorConnection extends MeshDevice {
   /** Disconnects from the Meshtastic device */
   public disconnect(): void {
     //this.device?.gatt?.disconnect();
-    BleClient.disconnect(this.portId);
+    BleClient.disconnect(this.portId).catch(() => {
+      console.log("disconnect error2");
+    });
 
     this.updateDeviceStatus(Types.DeviceStatusEnum.DeviceDisconnected);
     this.complete();
@@ -152,7 +154,7 @@ export class BleCapacitorConnection extends MeshDevice {
         readBuffer = new ArrayBuffer(0);
         this.log.error(
           Types.Emitter[Types.Emitter.ReadFromRadio],
-          `❌ ${e.message}`,
+          `❌> ${e.message}`,
         );
       });
     }
@@ -164,7 +166,13 @@ export class BleCapacitorConnection extends MeshDevice {
    */
   protected async writeToRadio(data: Uint8Array): Promise<void> {
     let ndata = new DataView(data.buffer); // typedArrayToBuffer(data) data.buffer
-    await BleClient.write(this.portId, ServiceUuid, ToRadioUuid, ndata);
-    await this.readFromRadio();
+    await BleClient.write(this.portId, ServiceUuid, ToRadioUuid, ndata).then(async () => {
+      await this.readFromRadio();
+    }).catch((e) => {
+      this.log.error(
+        Types.Emitter[Types.Emitter.WriteToRadio],
+        `❌ ${e.message}`,
+      );
+    });
   }
 }
