@@ -140,6 +140,7 @@ export abstract class MeshDevice {
       channel,
       true,
       false,
+      true
     );
   }
 
@@ -161,7 +162,6 @@ export abstract class MeshDevice {
       Types.Emitter[Types.Emitter.SendPacket],
       `📤 Sending ${Protobuf.Portnums.PortNum[portNum]} to ${destination}`,
     );
-
     const meshPacket = new Protobuf.Mesh.MeshPacket({
       payloadVariant: {
         case: "decoded",
@@ -173,7 +173,7 @@ export abstract class MeshDevice {
           replyId,
           dest: 0, //change this!
           requestId: 0, //change this!
-          source: 0, //change this!
+          source: (wantResponse && destination!=="broadcast" && destination!=="self")?this.myNodeInfo.myNodeNum:0,
         },
       },
       from: this.myNodeInfo.myNodeNum,
@@ -212,14 +212,19 @@ export abstract class MeshDevice {
     if (toRadio.length > 512) {
       throw new Error("Message longer than 512 bytes, it will not be sent!");
     }
-    this.queue.push({
-      id,
-      data: toRadio,
-    });
+    try {
+      this.queue.push({
+        id,
+        data: toRadio,
+      });
 
-    await this.queue.processQueue(async (data) => {
-      await this.writeToRadio(data);
-    });
+      await this.queue.processQueue(async (data) => {
+        await this.writeToRadio(data);
+      });
+
+    } catch (error) {
+      console.error(`Queue error...`, error);
+    }
 
     return this.queue.wait(id);
   }
@@ -785,7 +790,7 @@ export abstract class MeshDevice {
         );
 
         //TODO: HERE
-        if (decodedMessage.payloadVariant.value.position) {
+        /*if (decodedMessage.payloadVariant.value.position) {
           this.events.onPositionPacket.dispatch({
             id: decodedMessage.id,
             rxTime: new Date(),
@@ -808,7 +813,7 @@ export abstract class MeshDevice {
             channel: Types.ChannelNumber.Primary,
             data: decodedMessage.payloadVariant.value.user,
           });
-        }
+        }*/
         break;
       }
 
@@ -1046,7 +1051,6 @@ export abstract class MeshDevice {
 
       case Protobuf.Portnums.PortNum.ROUTING_APP: {
         routingPacket = Protobuf.Mesh.Routing.fromBinary(dataPacket.payload);
-
         this.events.onRoutingPacket.dispatch({
           ...packetMetadata,
           data: routingPacket,
