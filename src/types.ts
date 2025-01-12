@@ -4,7 +4,7 @@ import type {
   SerialConnection,
   BleCapacitorConnection
 } from "./adapters/index.js";
-import type * as Protobuf from "./protobufs.js";
+import type * as Protobuf from "@meshtastic/protobufs";
 
 export interface QueueItem {
   id: number;
